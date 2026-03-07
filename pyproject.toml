@@ -1,0 +1,15 @@
+[project]
+name = "lcs4_fastapi_7_marzo"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi[standard]>=0.135.1",
+    "pillow>=12.1.1",
+    "pydantic-settings>=2.13.1",
+    "python-multipart>=0.0.22",
+    "requests>=2.32.5",
+    "streamlit>=1.55.0",
+    "ultralytics>=8.4.21",
+]

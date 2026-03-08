@@ -1,6 +1,7 @@
 # Backedn usando FastAPI para detección de objetos con YOLOv8
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from app.schemas import DetectionsResponse
 from app.yolo_service import YoloObjectDetection
 
@@ -27,8 +28,17 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Configurar CORS para permitir solicitudes desde el frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permitir todas las fuentes (ajustar según sea necesario)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.post("api/v1/detect", response_model=DetectionsResponse)
+
+@app.post("/api/v1/detect", response_model=DetectionsResponse)
 async def detect_objects(file: UploadFile) -> DetectionsResponse:
     if file.content_type not in ["image/jpeg", "image/png"]:
         raise HTTPException(

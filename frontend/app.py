@@ -15,7 +15,7 @@ st.write(
     "Sube una imagen para detectar vehículos, peatones y ciclistas utilizando el modelo YOLO26s a través de una API FastAPI."
 )
 
-API_URL = " http://127.0.0.1:8000/api/v1/detect"
+API_URL = "http://127.0.0.1:8000/api/v1/detect"
 uploaded_file = st.file_uploader(
     "Selecciona una imagen (JPEG o PNG)", type=["jpg", "jpeg", "png"]
 )
@@ -30,6 +30,9 @@ if uploaded_file is not None:
         st.image(image, width="stretch")
     if st.button("Detectar Objetos"):
         try:
+            uploaded_file.seek(
+                0
+            )  # Asegurarse de que el puntero del archivo esté al inicio
             files = {"file": (uploaded_file.name, uploaded_file, uploaded_file.type)}
             response = requests.post(API_URL, files=files)
             response.raise_for_status()
@@ -51,15 +54,17 @@ if uploaded_file is not None:
                 draw.rectangle([(x_min, y_min), (x_max, y_max)], outline="red", width=2)
                 font = ImageFont.load_default()
                 text = f"{class_name} ({confidence:.2f})"
-                text_size = draw.textsize(text, font=font)
+                bbox = draw.textbbox((x_min, y_min), text, font=font)
+                text_w = bbox[2] - bbox[0]
+                text_h = bbox[3] - bbox[1]
                 draw.rectangle(
-                    [(x_min, y_min - text_size[1]), (x_min + text_size[0], y_min)],
+                    [(x_min, y_min - text_h), (x_min + text_w, y_min)],
                     fill="red",
                 )
-                draw.text((x_min, y_min - text_size[1]), text, fill="white", font=font)
+                draw.text((x_min, y_min - text_h), text, fill="white", font=font)
             with col2:
                 st.subheader("Imagen con Detecciones")
-                st.image(image, use_column_width=True)
+                st.image(image, width="stretch")
         except requests.exceptions.RequestException as e:
             st.error(f"Error al conectar con la API: {e}")
         except Exception as e:
